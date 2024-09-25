@@ -80,10 +80,10 @@ Atualmente não há processos para monitoramento ativo e envio de alertas, entre
 
     * Preencha os campos a seguir com os seguintes valores:
         
-        Connection Id: spark-con
-        Connection Type: Spark
-        Host: spark://spark-master
-        Port: 7077
+        * Connection Id: spark-con
+        * Connection Type: Spark
+        * Host: spark://spark-master
+        * Port: 7077
 
       ![](https://github.com/Marcustap/BreweryListETL/blob/main/images/parametros_conexao.PNG)
 
