@@ -1,4 +1,5 @@
 import logging
+from pyspark.sql.functions import count, col
 
 def check_empty_df(df) -> None:
     '''
@@ -36,8 +37,8 @@ def check_only_unique_rows(df, columns: list) -> bool:
     return: Boolean
     '''
 
-    duplicate_rows = df.select(columns).distinct().count()
-    if duplicate_rows > 0:
+    df_duplicate_rows = df.groupBy(columns).agg(count('*').alias('quantity')).filter(col('quantity') > 1)
+    if check_empty_df(df_duplicate_rows):
         logging.error(f"Duplicated rows for columns {columns}")
         return False
     else:
