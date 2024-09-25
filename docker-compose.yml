@@ -1,0 +1,92 @@
+version: '3'
+
+x-spark-common: &spark-common
+  image: bitnami/spark:3.5.0-debian-11-r0
+  user: root
+  volumes:
+    - ./scripts:/opt/bitnami/spark/jobs
+  networks:
+    - brewery_list
+
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+  env_file:
+    - airflow.env
+  volumes:
+    - ./scripts:/opt/airflow/jobs
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./data:/datalake
+    - ./tests:/opt/airflow/tests
+  depends_on:
+    - postgres
+  networks:
+    - brewery_list
+
+services:
+  spark-master:
+    <<: *spark-common
+    command: bin/spark-class org.apache.spark.deploy.master.Master
+    environment:
+      - PYSPARK_PYTHON=/usr/bin/python3.9
+      - PYSPARK_DRIVER_PYTHON=/usr/bin/python3.9
+      - SPARK_SUBMIT_ARGS=--packages io.delta:delta-spark_2.12:3.2.0
+    ports:
+      - "9090:8080"
+      - "7077:7077"
+    volumes:
+      - ./data:/datalake
+
+  spark-worker:
+    <<: *spark-common
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=1g
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - PYSPARK_PYTHON=/usr/bin/python3.9
+      - PYSPARK_DRIVER_PYTHON=/usr/bin/python3.9
+      - SPARK_SUBMIT_ARGS=--packages io.delta:delta-spark_2.12:3.2.0
+    volumes:
+      - ./data:/datalake
+
+  postgres:
+    image: postgres:14.0
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    networks:
+      - brewery_list
+
+  webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+    depends_on:
+      - scheduler
+
+  scheduler:
+    <<: *airflow-common
+    command: bash -c "airflow db migrate && airflow users create --username admin --firstname Marcus --lastname Tapias --role Admin --email email@email.com --password admin && airflow scheduler"
+
+  jupyter-spark:
+      image: jupyter/pyspark-notebook:x86_64-spark-3.5.0
+      networks:
+          - brewery_list
+      ports:
+        - "8888:8888"
+        - "4040-4080:4040-4080"
+      volumes:
+        - ./notebooks:/home/jovyan/work/notebooks
+        - ./data:/home/jovyan/work/datalake
+
+
+networks:
+  brewery_list:
