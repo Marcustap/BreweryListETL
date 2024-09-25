@@ -30,6 +30,7 @@ Este projeto tem por objetivo coletar dados de cervejarias através da API dispo
 
 ## Fluxo do Processo
 
+![](https://github.com/Marcustap/BreweryListETL/blob/main/images/brewery_list_etl.PNG)
 
 ### Camada Broze
 Coleta de dados via API com política de retry e ingestão dos dados na camada bronze em arquivos em formato json.
