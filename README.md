@@ -71,6 +71,7 @@ Atualmente não há processos para monitoramento ativo e envio de alertas, entre
 
 * Em seguida, é necessário configurar a conexão do Airflow com o Spark. 
     * Na aba Admin, clique em connections;
+    * ![](https://github.com/Marcustap/BreweryListETL/blob/main/images/Capturar.PNG)
 
     * Clique no botão de "+" - Add a new record;
 
@@ -78,19 +79,19 @@ Atualmente não há processos para monitoramento ativo e envio de alertas, entre
         
         Connection Id: spark-con
         Connection Type: Spark
-        Host: spark://spark-master1
+        Host: spark://spark-master
         Port: 7077
 
-        Clique em Salvar
+    * Clique em Salvar
 
-    * Volte para a aba DAGs e você verá duas dags já criadas. A primeira "brewery_list_etl" contém o pipeline principal. Basta iniciar a DAG e aguardar a sua conclusão.
+* Volte para a aba DAGs e você verá duas dags já criadas. A primeira "brewery_list_etl" contém o pipeline principal. Basta iniciar a DAG e aguardar a sua conclusão.
 
-    * Após a conclusão, acesso os logs do container Jupyter Notebook com o comando
-        * *docker logs brewerylist-jupyter-spark-1*
+* Após a conclusão, acesso os logs do container Jupyter Notebook com o comando
+  * *docker logs brewerylist-jupyter-spark-1*
 
-    * Acesse o servidor do jupyter notebook encontrando o link que inicia com  http://127.0.0.1:8888/lab?token... como na imagem abaixo:
+* Acesse o servidor do jupyter notebook encontrando o link que inicia com  http://127.0.0.1:8888/lab?token... como na imagem abaixo:
 
-    * Agora basta executar o notebook na pasta work/notebooks/Reads Gold Layer.ipynb para acessar os dados.
+* Agora basta executar o notebook na pasta work/notebooks/Reads Gold Layer.ipynb para acessar os dados.
 
 
 
