@@ -5,6 +5,7 @@ from pyspark.sql.types import IntegerType
 import pyspark
 from delta import *
 import logging
+import data_quality as dt
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -20,6 +21,16 @@ spark = configure_spark_with_delta_pip(builder).getOrCreate()
 
 
 # COMMAND ----------
+
+spark.sql("""
+        CREATE TABLE IF NOT EXISTS gold_brewery_list (
+          state STRING,
+          brewery_type STRING,
+          brewery_quantity INT
+        ) USING DELTA
+          PARTITIONED BY (state)
+          LOCATION '/datalake/gold/breweries/num_breweries_per_state'
+    """)
 
 try:
     #Reads data from the silver layer
@@ -38,24 +49,17 @@ except Exception as e:
     logging.error(f"Error trying to summarize the data. Error: {str(e)}")
     raise
 
-def check_empty_df(df):
-    if df.rdd.isEmpty():
-        logging.warning("DataFrame está vazio!")
-        raise ValueError("DataFrame da camada silver está vazio.")
 
-def check_duplicates(df, subset_cols):
-    duplicate_count = df.groupBy(subset_cols).count().filter("count > 1").count()
-    if duplicate_count > 0:
-        logging.error(f"Found duplicated rows in columns {subset_cols}.")
-        raise ValueError("Found duplicated rows in Dataframe")
+## Applies Data Quality before writing into the Data Lake
 
+unique_rows = dt.check_only_unique_rows(df_agg_per_state, ["state", "brewery_type"])
+dataframe_with_rows = dt.check_empty_df(df_silver)
+df_with_null_values = dt.check_null_values(df_agg_per_state, ['state', 'brewery_type', 'brewery_quantity'])
 
-check_duplicates(df_agg_per_state, ["state", "brewery_type"])
+if not dataframe_with_rows or not unique_rows or df_with_null_values:
+    logging.error("Dataframe did not pass data quality checks")
+    raise
 
-check_empty_df(df_silver)
-
-
-# COMMAND ----------
 try:
     #Writes the data paritioned by state column
     df_agg_per_state.write.format("delta") \

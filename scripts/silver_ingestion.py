@@ -47,6 +47,30 @@ if __name__ == '__main__':
     #Register UDF
     clean_string_udf = udf(clean_string, StringType())
 
+    #Creates Tabla if not exists
+
+    spark.sql("""
+        CREATE TABLE IF NOT EXISTS silver_brewery_list (
+            id STRING,
+            name STRING,
+            brewery_type STRING,
+            street STRING,
+            address_2 STRING,
+            address_3 STRING,
+            city STRING,
+            postal_code STRING,
+            country STRING,
+            longitude STRING,
+            latitude STRING,
+            phone STRING,
+            website_url STRING,
+            state STRING
+        ) 
+        USING DELTA
+        PARTITIONED BY (state)
+        LOCATION '/datalake/silver/breweries/'
+    """)
+
     # COMMAND ----------
 
     bronze_path = '/datalake/bronze/breweries/'
@@ -122,7 +146,7 @@ if __name__ == '__main__':
             .mode("overwrite") \
             .option("overwriteSchema", "true") \
             .partitionBy("state") \
-            .save('/datalake/silver/breweries/')
+            .saveAsTable('silver_brewery_list')
         logging.info("Data saved successfuly into silver layer")
 
     except Exception as e:

@@ -1,5 +1,5 @@
 import logging
-from pyspark.sql.functions import count, col
+from pyspark.sql.functions import count, col, isnan, when
 
 def check_empty_df(df) -> None:
     '''
@@ -44,3 +44,22 @@ def check_only_unique_rows(df, columns: list) -> bool:
     else:
         logging.info(f"No duplicated rows for columns {columns} found")
         return True
+    
+def check_null_values(df, columns: list) -> bool:
+    '''
+    Check if one or more columns of the dataframe has null values.
+    df: Dataframe
+    columns: list of columns
+
+    returns: Boolean (True if df contains null values, False otherwise)
+    '''
+    try:
+        exprs = [count(when(col(c).isNull() | isnan(c), c)).alias(c) for c in columns]
+        null_counts = df.select(exprs).collect()[0]
+
+        has_nulls = any(null_count > 0 for null_count in null_counts)
+        
+        return has_nulls
+    except Exception as e:
+        logging.error(f"Error trying to check null values. Error: {str(e)}")
+        raise
