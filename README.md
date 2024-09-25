@@ -71,9 +71,12 @@ Atualmente não há processos para monitoramento ativo e envio de alertas, entre
 
 * Em seguida, é necessário configurar a conexão do Airflow com o Spark. 
     * Na aba Admin, clique em connections;
+      
     * ![](https://github.com/Marcustap/BreweryListETL/blob/main/images/Capturar.PNG)
 
     * Clique no botão de "+" - Add a new record;
+ 
+      ![](https://github.com/Marcustap/BreweryListETL/blob/main/images/adicionar%20conexao.PNG)
 
     * Preencha os campos a seguir com os seguintes valores:
         
@@ -81,6 +84,8 @@ Atualmente não há processos para monitoramento ativo e envio de alertas, entre
         Connection Type: Spark
         Host: spark://spark-master
         Port: 7077
+
+      ![](https://github.com/Marcustap/BreweryListETL/blob/main/images/parametros_conexao.PNG)
 
     * Clique em Salvar
 
@@ -91,7 +96,11 @@ Atualmente não há processos para monitoramento ativo e envio de alertas, entre
 
 * Acesse o servidor do jupyter notebook encontrando o link que inicia com  http://127.0.0.1:8888/lab?token... como na imagem abaixo:
 
+  ![](https://github.com/Marcustap/BreweryListETL/blob/main/images/logs_jupyter_notebook.PNG)
+
 * Agora basta executar o notebook na pasta work/notebooks/Reads Gold Layer.ipynb para acessar os dados.
 
+  
+ ![](https://github.com/Marcustap/BreweryListETL/blob/main/images/notebook.PNG)
 
 
