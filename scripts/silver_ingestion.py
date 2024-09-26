@@ -1,6 +1,6 @@
 # Databricks notebook source
 from pyspark.sql.types import StringType
-from pyspark.sql.functions import col, upper, udf
+from pyspark.sql.functions import col, upper, udf, current_timestamp
 import re
 import unicodedata
 from delta import *
@@ -64,7 +64,8 @@ if __name__ == '__main__':
             latitude STRING,
             phone STRING,
             website_url STRING,
-            state STRING
+            state STRING,
+            dt_ingestion timestamp
         ) 
         USING DELTA
         PARTITIONED BY (state)
@@ -132,6 +133,8 @@ if __name__ == '__main__':
             "phone",
             "website_url",
             "state",
+        ).withColumn(
+            "dt_ingestion", current_timestamp()
         )
     except Exception as e:
         logging.error(f"Error selecting columns to final_df. Error: {str(e)}")

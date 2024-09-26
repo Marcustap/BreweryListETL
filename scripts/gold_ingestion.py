@@ -1,6 +1,6 @@
 # Databricks notebook source
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import count, col
+from pyspark.sql.functions import count, col, current_timestamp
 from pyspark.sql.types import IntegerType
 import pyspark
 from delta import *
@@ -26,7 +26,8 @@ spark.sql("""
         CREATE TABLE IF NOT EXISTS gold_brewery_list (
           state STRING,
           brewery_type STRING,
-          brewery_quantity INT
+          brewery_quantity INT,
+          dt_ingestion timestamp
         ) USING DELTA
           PARTITIONED BY (state)
           LOCATION '/datalake/gold/breweries/num_breweries_per_state'
@@ -44,7 +45,8 @@ except Exception as e:
 try:
     #Summmarize the data, with the quantity of breweries per type and state.
     df_agg_per_state = df_silver.groupBy(col("state"), col("brewery_type")).agg(count("*").alias("brewery_quantity")) \
-        .withColumn("brewery_quantity", col("brewery_quantity").cast(IntegerType()))
+        .withColumn("brewery_quantity", col("brewery_quantity").cast(IntegerType())) \
+        .withColumn("dt_ingestion", current_timestamp())
 except Exception as e:
     logging.error(f"Error trying to summarize the data. Error: {str(e)}")
     raise
