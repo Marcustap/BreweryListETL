@@ -32,8 +32,9 @@ Este projeto tem por objetivo coletar dados de cervejarias através da API dispo
 
 ![](https://github.com/Marcustap/BreweryListETL/blob/main/images/brewery_list_etl.PNG)
 
-### Camada Broze
+### Camada Bronze
 Coleta de dados via API com política de retry e ingestão dos dados na camada bronze em arquivos em formato json.
+Caminho: /datalake/bronze/breweries/{Ano}/{Mes}/{Dia}
 
 ### Camada Silver
 Leitura dos arquivos da camada bronze, tratamento de dados e ingestão na camada silver em arquivos em formato parquet.
@@ -41,9 +42,43 @@ Leitura dos arquivos da camada bronze, tratamento de dados e ingestão na camada
 * Filtragem de valores nulos para colunas chave.
 * Normalização de valores da coluna state.
 
+* Caminho: /datalake/silver/breweries/
+
+* Schema:
+
+| Coluna   | Data Type  |
+|----------------|------------|
+| id             | STRING     |
+| name           | STRING     |
+| brewery_type   | STRING     |
+| street         | STRING     |
+| address_2      | STRING     |
+| address_3      | STRING     |
+| city           | STRING     |
+| postal_code    | STRING     |
+| country        | STRING     |
+| longitude      | STRING     |
+| latitude       | STRING     |
+| phone          | STRING     |
+| website_url    | STRING     |
+| state          | STRING     |
+| dt_ingestion   | TIMESTAMP  |
+
 
 ### Camada Gold
 Leitura dos dados presentes na camada silver e agregação dos dados apresentando a quantidade de cervejarias por localidade (coluna "state") dividias por tipos de cervejaria (coluna "brewery_type")
+
+Caminho: /datalake/gold/breweries/num_breweries_per_state/
+
+* Schema:
+
+| Coluna            | Data Type  |
+|-------------------|------------|
+| state             | STRING     |
+| brewery_type      | STRING     |
+| brewery_quantity  | INTEGER    |
+| dt_ingestion      | TIMESTAMP  |
+
 
 ### Data Quality
 Entre os processos de ingestão existe o acionamento de scripts que verificam a integridade dos dados antes que eles sejam processados em camadas futuras, garantindo a confiabilidade nos dados que serão consumidos na camada gold.
