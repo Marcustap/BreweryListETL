@@ -62,7 +62,7 @@ def write_json_file(content: list, path: str, filename: str) -> None:
         logging.info(f"File written successfully: {filepath}")
 
     except Exception as e:
-        logging.warning(f'Error writing json file: {filepath}. Error: str(e)')
+        logging.warning(f'Error writing json file. Error: str(e)')
 
 # COMMAND ----------
 

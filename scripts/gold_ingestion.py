@@ -29,7 +29,6 @@ spark.sql("""
           brewery_quantity INT,
           dt_ingestion timestamp
         ) USING DELTA
-          PARTITIONED BY (state)
           LOCATION '/datalake/gold/breweries/num_breweries_per_state'
     """)
 
@@ -66,7 +65,6 @@ try:
     #Writes the data paritioned by state column
     df_agg_per_state.write.format("delta") \
         .mode("overwrite") \
-        .partitionBy("state") \
         .save('/datalake/gold/breweries/num_breweries_per_state')
     logging.info(f"Data written successfuly into gold layer")
 
